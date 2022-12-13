@@ -9,7 +9,6 @@
 #define SSID "Rodrigues"
 #define SSID_PASSWORD "meg140914"
 #define WEB_PORT 81
-#define STEP_M_IN1 D0
-#define STEP_M_IN2 D2
-#define STEP_M_IN3 D1
-#define STEP_M_IN4 D3
+#define SERVO_PIN D5
+#define ECHO_PIN 2 
+#define TRIG_PIN D6

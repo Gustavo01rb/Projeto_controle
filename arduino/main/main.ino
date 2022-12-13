@@ -1,12 +1,8 @@
 #include <ESP8266WiFi.h>
 #include <WebSocketsServer.h>
-#include <Stepper.h> 
 #include "config.hpp"
-
 WebSocketsServer webSocket = WebSocketsServer(WEB_PORT); 
-bool activeded_step_motor = false;
-int stepsPerRevolution = 0;
-int setSpeed = 0;
+
 
 void connectToWiFi(){
   Serial.println("===========================================================================");
@@ -64,30 +60,56 @@ void caseText(uint8_t num, uint8_t * payload, size_t length){
     if (cont == 1){l_stepsPerRevolution += aux; continue;}
     if (cont == 2){l_setSpeed += aux; continue;}
   }
-  if(l_active == "true") activeded_step_motor = true; 
-  else activeded_step_motor = false;
-  stepsPerRevolution = l_stepsPerRevolution.toInt();
-  setSpeed = l_setSpeed.toInt();
+  
 }
 
-void active_step_motor(){
-    if(!activeded_step_motor) return;
-    Stepper myStepper(stepsPerRevolution, STEP_M_IN1,STEP_M_IN2,STEP_M_IN3,STEP_M_IN4); 
-    myStepper.setSpeed(setSpeed);
-    myStepper.step(stepsPerRevolution);  
-}
-
+ const int trigPin = D6;   
+ const int echoPin = D7;   
+ long duration;  
+ int distance; 
 void setup() {
   Serial.begin(SERIALSPEED);
   connectToWiFi();
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
-
+  pinMode(SERVO_PIN, OUTPUT);
+pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output  
+ pinMode(echoPin, INPUT);
 }
-
-
 
 void loop() {
   webSocket.loop();
-  active_step_motor();
+ digitalWrite(trigPin, LOW);  
+ delayMicroseconds(2);  
+ digitalWrite(trigPin, HIGH);  
+ delayMicroseconds(10);  
+ digitalWrite(trigPin, LOW);  
+ duration = pulseIn(echoPin, HIGH);  
+ distance= duration*0.034/2;  
+ if(distance <= 13){
+  Serial.print("Distance: ");  
+  Serial.println(distance);
+ }  
+  
+  
+  analogWrite(SERVO_PIN, 120);
+
+
+  /*int valor_pwm = 0;  
+  for (valor_pwm = 0; valor_pwm < 120; valor_pwm++){
+    analogWrite(SERVO_PIN, valor_pwm);
+    Serial.print("Valor setado:");
+    Serial.println(valor_pwm);
+    Serial.print("Valor lido:");
+    yeld();
+    Serial.println(analogRead(A0));
+    delay(1000);
+
+  }
+  for (valor_pwm = 120; valor_pwm >= 0; valor_pwm--){
+    analogWrite(SERVO_PIN, valor_pwm);
+    Serial.println(valor_pwm);
+    delay(100);
+
+  }*/
 }
