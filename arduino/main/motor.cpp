@@ -1,11 +1,15 @@
 #include "motor.hpp"
 
-Motor::Motor(int pin):pin(pin),speed(0){
+Motor::Motor(int pin):pin(pin),speed(0),active(false){
   pinMode(pin, OUTPUT);
 }
 
 int  Motor::get_pin()const{
   return this->pin;  
+}
+
+bool Motor::get_active() const{
+  return this->active;
 }
 
 int  Motor::get_speed()const{
@@ -25,4 +29,9 @@ void Motor::max_speed(){
 void Motor::min_speed(){
   this->speed = 0;
   analogWrite(this->pin, this->speed);
+}
+void Motor::receive_message(bool active, int speed){
+  this->active = active;
+  if (this->active) this->set_speed(speed);
+  else this->min_speed();
 }

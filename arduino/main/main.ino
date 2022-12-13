@@ -22,12 +22,13 @@ void setup() {
 
 void loop() {
   webSocket.loop();
+  if(!motor->get_active()) return;
   int teste = sensor->get_distance_with_range(0,9);
   if (teste != -1){
     cont_rpm++;
     delayMicroseconds(3); 
   }
-  motor->set_speed(122);
+  motor->set_speed(motor->get_speed());
   if(threadRpm.shouldRun())
 		threadRpm.run();
 }
@@ -93,14 +94,16 @@ void rpm(){
     char aux;
     int cont = 0;
     String l_active = "";
-    String l_stepsPerRevolution = "";
-    String l_setSpeed = "";
+    String l_speed = "";
     for(int i = 0; i < length; i++){ 
       aux = (char) payload[i];
-      if (aux == ';'){ cont++; continue;}
+      if (aux == ';'){cont++; continue;}
       if (cont == 0){l_active += aux; continue;}
-      if (cont == 1){l_stepsPerRevolution += aux; continue;}
-      if (cont == 2){l_setSpeed += aux; continue;}
+      if (cont == 1){l_speed += aux; continue;}
     }
+    bool respose_a;
+    if(l_active == "true") respose_a = true;
+    else respose_a = false;
+    motor->receive_message(respose_a,l_speed.toInt());
     
   }

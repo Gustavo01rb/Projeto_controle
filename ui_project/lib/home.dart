@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ui_project/config.dart';
-import 'package:ui_project/default_form_with_text.dart';
 import 'package:ui_project/waitpage.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -16,14 +15,15 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   late bool connected;
   late IOWebSocketChannel channel;
-  late bool stepMotor;
-  final revolutionController = TextEditingController();
-  final speedController = TextEditingController();
+  late bool activeMotor;
+  late double _currentSliderValue;
 
   @override
   void initState() {
     connected = false;
-    stepMotor = false;
+    activeMotor = false;
+    _currentSliderValue = 20;
+
     Future.delayed(Duration.zero, () async {
       channelconnect();
     });
@@ -54,20 +54,18 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Future<void> sendcmd() async {
-    if (stepMotor) {
-      channel.sink.add("false;65;600");
-      setState(() {
-        stepMotor = false;      
-      });
-    } else {
-      setState(() {
-        stepMotor = true;        
-      });
-      channel.sink.add(
-          "true;${revolutionController.text.isEmpty ? 65 : revolutionController.text};${speedController.text.isEmpty ? 600 : speedController.text}");
-    }
+  Future<void> sendSpeed(double value) async {
+    if (!activeMotor) return;
+    channel.sink.add("true;$_currentSliderValue");
   }
+
+  void onButtonPressed() {
+    setState(() => activeMotor = !activeMotor);
+    channel.sink.add("$activeMotor;$_currentSliderValue");
+  }
+
+  void onChangedSlider(double value) =>
+      setState(() => _currentSliderValue = value);
 
   @override
   Widget build(BuildContext context) {
@@ -86,28 +84,25 @@ class _HomeState extends State<Home> {
                       ? "Dispositivo conectado"
                       : "Dispositivo não conectado"),
                   SizedBox(
-                      width: width * 0.8,
-                      child: FormDefaultWithText(
-                        titleText: "Steps per revolution",
-                        textInputType: TextInputType.number,
-                        controller: revolutionController,
-                      )),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: SizedBox(
-                        width: width * 0.8,
-                        child: FormDefaultWithText(
-                          titleText: "Speed",
-                          textInputType: TextInputType.number,
-                          controller: speedController,
-                        )),
+                    width: width * 0.8,
+                    child: Padding(
+                      padding: const EdgeInsets.all(50.0),
+                      child: Slider(
+                          value: _currentSliderValue,
+                          max: 255,
+                          divisions: 255,
+                          label: _currentSliderValue.round().toString(),
+                          onChangeEnd: (value) async => sendSpeed(value),
+                          onChanged: onChangedSlider),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 20.0),
                     child: ButtonDefault(
                       width: width * 0.6,
-                      onPressed: () async => sendcmd(),
-                      text: stepMotor ? "Desligar Motor" : "Ligar motor",
+                      onPressed: onButtonPressed,
+                      text: activeMotor ? "Desligar Motor" : "Ligar motor",
+                      color: !activeMotor ? Colors.green : Colors.red,
                     ),
                   )
                 ],
