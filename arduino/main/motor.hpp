@@ -16,5 +16,6 @@ class Motor{
     void max_speed();
     void min_speed();
     void receive_message(bool active, int speed);
+    void control(int fix);
 
 };

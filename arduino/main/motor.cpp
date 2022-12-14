@@ -35,3 +35,10 @@ void Motor::receive_message(bool active, int speed){
   if (this->active) this->set_speed(speed);
   else this->min_speed();
 }
+void Motor::control(int fix){
+  int c_speed = this->speed + fix;
+  if (c_speed > 255) c_speed = 255;
+  if (c_speed < 0)   c_speed = 0;
+  analogWrite(this->pin, c_speed);
+}
+
