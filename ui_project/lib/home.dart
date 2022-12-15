@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ui_project/config.dart';
+import 'package:ui_project/core/colors.dart';
 import 'package:ui_project/waitpage.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -17,7 +18,7 @@ class _HomeState extends State<Home> {
   late IOWebSocketChannel channel;
   late bool activeMotor;
   late double _currentSliderValue;
-  late int rpm_motor;
+  int rpm_motor = 0;
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class _HomeState extends State<Home> {
             debugPrint("Dispositivo conectado");
             connected = true;
           } else {
-            setState(()=>rpm_motor = int.parse(message));
+            setState(() => rpm_motor = int.parse(message));
           }
         });
       }, onDone: () {
@@ -60,7 +61,7 @@ class _HomeState extends State<Home> {
 
   Future<void> sendSpeed(double value) async {
     if (!activeMotor) return;
-    channel.sink.add("true;${((_currentSliderValue*127) / 400).round()}");
+    channel.sink.add("true;${((_currentSliderValue * 127) / 400).round()}");
   }
 
   void onButtonPressed() {
@@ -74,19 +75,28 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
-    return !connected
-        ? const WaitPage()
-        : Scaffold(
+    return //!connected
+        //? const WaitPage():
+        Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              backgroundColor: ProjectColors.darkBlue,
+              title: const Text("Controle Tensão Motor"),
+            ),
+            backgroundColor: ProjectColors.black,
             body: SafeArea(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                   SizedBox(
                     width: width,
                   ),
-                  Text(connected
-                      ? "Dispositivo conectado"
-                      : "Dispositivo não conectado"),
+                  const Text("Ajustador de tensão",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 18,
+                        color: Colors.white,
+                      )),
                   SizedBox(
                     width: width * 0.8,
                     child: Padding(
@@ -106,16 +116,18 @@ class _HomeState extends State<Home> {
                       width: width * 0.6,
                       onPressed: onButtonPressed,
                       text: activeMotor ? "Desligar Motor" : "Ligar motor",
-                      color: !activeMotor ? Colors.green : Colors.red,
+                      color: !activeMotor ? ProjectColors.blue : Colors.red,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(50.0),
-                    child: Text("Rotação do motor $rpm_motor rpm"),
+                    child: Text("Rotação do motor $rpm_motor rpm",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 18,
+                          color: Colors.white,
+                        )),
                   )
-                ],
-              ),
-            ),
-          );
+                ])));
   }
 }
