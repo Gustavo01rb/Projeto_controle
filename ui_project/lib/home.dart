@@ -4,6 +4,7 @@ import 'package:ui_project/config.dart';
 import 'package:ui_project/core/colors.dart';
 import 'package:ui_project/waitpage.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:just_the_tooltip/just_the_tooltip.dart';
 
 import 'button.dart';
 import 'chart.dart';
@@ -22,6 +23,7 @@ class _HomeState extends State<Home> {
   late double _currentSliderValue;
   late int rpm_motor = 0;
   List<int> rpmList = [0];
+  final tooltipController = JustTheController();
 
   @override
   void initState() {
@@ -33,6 +35,10 @@ class _HomeState extends State<Home> {
     Future.delayed(Duration.zero, () async {
       channelconnect();
     });
+    Future.delayed(const Duration(seconds: 10), () {
+      tooltipController.showTooltip(immediately: false);
+    });
+    tooltipController.addListener(() {});
     super.initState();
   }
 
@@ -88,6 +94,28 @@ class _HomeState extends State<Home> {
               centerTitle: true,
               backgroundColor: ProjectColors.darkBlue,
               title: const Text("Controle Tensão Motor"),
+              actions: const [
+                JustTheTooltip(
+                  content: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Controlador de tensão do motor por fuzzy',
+                    ),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    shape: CircleBorder(),
+                    elevation: 4.0,
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.info_outlined,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                )
+              ],
             ),
             backgroundColor: ProjectColors.black,
             body: SingleChildScrollView(
@@ -114,26 +142,80 @@ class _HomeState extends State<Home> {
                           fontSize: 18,
                           color: Colors.white,
                         )),
-                    SizedBox(
-                      width: width * 0.8,
-                      child: Padding(
-                        padding: const EdgeInsets.all(50.0),
-                        child: Slider(
-                            value: _currentSliderValue,
-                            max: 400,
-                            divisions: 170,
-                            onChangeEnd: (value) async => sendSpeed(value),
-                            onChanged: onChangedSlider),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: width * 0.8,
+                          child: Padding(
+                            padding: const EdgeInsets.all(50.0),
+                            child: Slider(
+                                value: _currentSliderValue,
+                                max: 400,
+                                divisions: 170,
+                                onChangeEnd: (value) async => sendSpeed(value),
+                                onChanged: onChangedSlider),
+                          ),
+                        ),
+                        const JustTheTooltip(
+                          content: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'Mova para a direita ou para a esquerda para regular a velocidade do motor',
+                            ),
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            shape: CircleBorder(),
+                            elevation: 4.0,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.info_outlined,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ButtonDefault(
-                        width: width * 0.6,
-                        onPressed: onButtonPressed,
-                        text: activeMotor ? "Desligar Motor" : "Ligar motor",
-                        color: !activeMotor ? ProjectColors.blue : Colors.red,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0, right: 10),
+                          child: ButtonDefault(
+                            width: width * 0.6,
+                            onPressed: onButtonPressed,
+                            text:
+                                activeMotor ? "Desligar Motor" : "Ligar motor",
+                            color:
+                                !activeMotor ? ProjectColors.blue : Colors.red,
+                          ),
+                        ),
+                        const JustTheTooltip(
+                          content: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'Precione o Botão "Ligar motor" para ligar o motor. Pressione novamente para desligar o motor',
+                            ),
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            shape: CircleBorder(),
+                            elevation: 4.0,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.info_outlined,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                     Padding(
                       padding: const EdgeInsets.all(50.0),
@@ -143,7 +225,7 @@ class _HomeState extends State<Home> {
                             fontSize: 18,
                             color: Colors.white,
                           )),
-                    )
+                    ),
                   ]),
             ));
   }
