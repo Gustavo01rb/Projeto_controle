@@ -5,5 +5,5 @@ class ProjectColors {
   static Color get gray => const Color.fromARGB(255, 54, 54, 54);
   static Color get darkBlue => const Color.fromARGB(255, 37, 36, 64);
   static Color get blue => const Color.fromARGB(255, 45, 44, 85);
-  static Color get white => const Color.fromARGB(255, 45, 44, 85);
+  static Color get white => const Color.fromARGB(255, 238, 238, 238);
 }

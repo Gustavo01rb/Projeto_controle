@@ -1,3 +1,4 @@
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:ui_project/config.dart';
 import 'package:ui_project/core/colors.dart';
@@ -5,6 +6,7 @@ import 'package:ui_project/waitpage.dart';
 import 'package:web_socket_channel/io.dart';
 
 import 'button.dart';
+import 'chart.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -18,7 +20,8 @@ class _HomeState extends State<Home> {
   late IOWebSocketChannel channel;
   late bool activeMotor;
   late double _currentSliderValue;
-  int rpm_motor = 0;
+  late int rpm_motor = 0;
+  List<int> rpmList = [0];
 
   @override
   void initState() {
@@ -43,7 +46,10 @@ class _HomeState extends State<Home> {
             debugPrint("Dispositivo conectado");
             connected = true;
           } else {
-            setState(() => rpm_motor = int.parse(message));
+            setState(() {
+              rpm_motor = int.parse(message);
+              rpmList.add(rpm_motor);
+            });
           }
         });
       }, onDone: () {
@@ -75,59 +81,88 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
-    return //!connected
-        //? const WaitPage():
-        Scaffold(
+    return !connected
+        ? const WaitPage()
+        : Scaffold(
             appBar: AppBar(
               centerTitle: true,
               backgroundColor: ProjectColors.darkBlue,
               title: const Text("Controle Tensão Motor"),
             ),
             backgroundColor: ProjectColors.black,
-            body: SafeArea(
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                  SizedBox(
-                    width: width,
-                  ),
-                  const Text("Ajustador de tensão",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 18,
-                        color: Colors.white,
-                      )),
-                  SizedBox(
-                    width: width * 0.8,
-                    child: Padding(
-                      padding: const EdgeInsets.all(50.0),
-                      child: Slider(
-                          value: _currentSliderValue,
-                          max: 400,
-                          divisions: 127,
-                          label: _currentSliderValue.round().toString(),
-                          onChangeEnd: (value) async => sendSpeed(value),
-                          onChanged: onChangedSlider),
+            body: SingleChildScrollView(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: width,
+                      height: 15,
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20.0),
-                    child: ButtonDefault(
-                      width: width * 0.6,
-                      onPressed: onButtonPressed,
-                      text: activeMotor ? "Desligar Motor" : "Ligar motor",
-                      color: !activeMotor ? ProjectColors.blue : Colors.red,
+                    SizedBox(
+                      width: 300,
+                      height: 300,
+                      child: Card(
+                          color: ProjectColors.white,
+                          child: ChartRPM(_createSampleData(rpmList))),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(50.0),
-                    child: Text("Rotação do motor $rpm_motor rpm",
-                        style: const TextStyle(
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    const Text("Ajustador de tensão",
+                        style: TextStyle(
                           fontWeight: FontWeight.w400,
                           fontSize: 18,
                           color: Colors.white,
                         )),
-                  )
-                ])));
+                    SizedBox(
+                      width: width * 0.8,
+                      child: Padding(
+                        padding: const EdgeInsets.all(50.0),
+                        child: Slider(
+                            value: _currentSliderValue,
+                            max: 400,
+                            divisions: 127,
+                            onChangeEnd: (value) async => sendSpeed(value),
+                            onChanged: onChangedSlider),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: ButtonDefault(
+                        width: width * 0.6,
+                        onPressed: onButtonPressed,
+                        text: activeMotor ? "Desligar Motor" : "Ligar motor",
+                        color: !activeMotor ? ProjectColors.blue : Colors.red,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(50.0),
+                      child: Text("Rotação do motor $rpm_motor rpm",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 18,
+                            color: Colors.white,
+                          )),
+                    )
+                  ]),
+            ));
+  }
+
+  static List<charts.Series<Chart, int>> _createSampleData(List<int> rpmList) {
+    final List<Chart> list = [];
+
+    for (int valor = 0; valor < rpmList.length; valor++) {
+      list.add(Chart(valor, rpmList[valor]));
+    }
+
+    return [
+      charts.Series<Chart, int>(
+        id: 'Gráfico tensão por tempo',
+        colorFn: (_, __) => charts.MaterialPalette.purple.shadeDefault,
+        domainFn: (Chart value, _) => value.time,
+        measureFn: (Chart value, _) => value.rpm,
+        data: list,
+      )
+    ];
   }
 }
