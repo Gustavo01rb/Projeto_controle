@@ -6,8 +6,8 @@
 
 #define SERIALSPEED 9600
 #define ONE_SECOND 1000
-#define SSID "Rodrigues"
-#define SSID_PASSWORD "meg140914"
+#define SSID "Gustavo"
+#define SSID_PASSWORD "12345678"
 #define WEB_PORT 81
 #define SERVO_PIN D5
 #define ECHO_PIN D7 

@@ -67,7 +67,7 @@ class _HomeState extends State<Home> {
 
   Future<void> sendSpeed(double value) async {
     if (!activeMotor) return;
-    channel.sink.add("true;${((_currentSliderValue * 127) / 400).round()}");
+    channel.sink.add("true;${((_currentSliderValue * 170) / 400).round()}");
   }
 
   void onButtonPressed() {
@@ -99,7 +99,7 @@ class _HomeState extends State<Home> {
                       height: 15,
                     ),
                     SizedBox(
-                      width: 300,
+                      width: width * 0.7,
                       height: 300,
                       child: Card(
                           color: ProjectColors.white,
@@ -121,7 +121,7 @@ class _HomeState extends State<Home> {
                         child: Slider(
                             value: _currentSliderValue,
                             max: 400,
-                            divisions: 127,
+                            divisions: 170,
                             onChangeEnd: (value) async => sendSpeed(value),
                             onChanged: onChangedSlider),
                       ),
