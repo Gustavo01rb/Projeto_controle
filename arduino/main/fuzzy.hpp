@@ -11,7 +11,8 @@ double gaussian(const int x,const double const_param[2]){
   
   int fuzzy(int err){
     const double ant_param[3][2] = {{boundarieFuzzy,-boundarieFuzzy},{boundarieFuzzy,0},{boundarieFuzzy,boundarieFuzzy}};
-    const double cons_param[3][2]={{3*limitVoltage/2-4,-3*limitVoltage/4},{3*limitVoltage/2,0},{3*limitVoltage/2-4,3*limitVoltage/4}};
+    const double cons_param[3][2] = {{limitVoltage,-limitVoltage+2},{limitVoltage,0},{limitVoltage,limitVoltage-2}};
+    
     double w[3];
     for(int i =0; i < 3 ; ++i){
         w[i] = gaussian(err,ant_param[i]);
