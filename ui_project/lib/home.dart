@@ -17,12 +17,14 @@ class _HomeState extends State<Home> {
   late IOWebSocketChannel channel;
   late bool activeMotor;
   late double _currentSliderValue;
+  late int rpm_motor;
 
   @override
   void initState() {
     connected = false;
     activeMotor = false;
     _currentSliderValue = 20;
+    rpm_motor = 0;
 
     Future.delayed(Duration.zero, () async {
       channelconnect();
@@ -39,6 +41,8 @@ class _HomeState extends State<Home> {
           if (message == "connected") {
             debugPrint("Dispositivo conectado");
             connected = true;
+          } else {
+            setState(()=>rpm_motor = int.parse(message));
           }
         });
       }, onDone: () {
@@ -56,7 +60,7 @@ class _HomeState extends State<Home> {
 
   Future<void> sendSpeed(double value) async {
     if (!activeMotor) return;
-    channel.sink.add("true;$_currentSliderValue");
+    channel.sink.add("true;${((_currentSliderValue*127) / 400).round()}");
   }
 
   void onButtonPressed() {
@@ -89,8 +93,8 @@ class _HomeState extends State<Home> {
                       padding: const EdgeInsets.all(50.0),
                       child: Slider(
                           value: _currentSliderValue,
-                          max: 255,
-                          divisions: 255,
+                          max: 400,
+                          divisions: 127,
                           label: _currentSliderValue.round().toString(),
                           onChangeEnd: (value) async => sendSpeed(value),
                           onChanged: onChangedSlider),
@@ -104,6 +108,10 @@ class _HomeState extends State<Home> {
                       text: activeMotor ? "Desligar Motor" : "Ligar motor",
                       color: !activeMotor ? Colors.green : Colors.red,
                     ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(50.0),
+                    child: Text("Rotação do motor $rpm_motor rpm"),
                   )
                 ],
               ),
