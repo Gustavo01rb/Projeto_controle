@@ -1,6 +1,3 @@
-#include <ESP8266WiFi.h>
-#include <WebSocketsServer.h>
-#include <Thread.h>
 #include "config.hpp"
 #include "motor.hpp"
 #include "d_sensor.hpp"

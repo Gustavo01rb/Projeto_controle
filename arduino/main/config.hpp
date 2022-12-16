@@ -2,7 +2,9 @@
 
 #include <ESP8266WiFi.h>
 #include <WebSocketsServer.h>
+#include <Thread.h>
 #include "Arduino.h"
+
 
 #define SERIALSPEED 9600
 #define ONE_SECOND 1000

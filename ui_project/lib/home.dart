@@ -93,13 +93,13 @@ class _HomeState extends State<Home> {
             appBar: AppBar(
               centerTitle: true,
               backgroundColor: ProjectColors.darkBlue,
-              title: const Text("Controle Tensão Motor"),
+              title: const Text("Controle velocidade Motor"),
               actions: const [
                 JustTheTooltip(
                   content: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
-                      'Controlador de tensão do motor por fuzzy',
+                      'Controlador de velocidade do motor por fuzzy',
                     ),
                   ),
                   child: Material(
@@ -136,7 +136,7 @@ class _HomeState extends State<Home> {
                     const SizedBox(
                       height: 15,
                     ),
-                    const Text("Ajustador de tensão",
+                    const Text("Ajustador de velocidade",
                         style: TextStyle(
                           fontWeight: FontWeight.w400,
                           fontSize: 18,
